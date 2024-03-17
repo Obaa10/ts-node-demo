@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-
 interface ITask {
     title: string;
     description: string;
