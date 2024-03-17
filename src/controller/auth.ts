@@ -1,7 +1,7 @@
 import { hash, compare } from 'bcrypt';
 
-import CustomError from '../utils/error';
-import { getToken } from '../utils/functions';
+import CustomError from '../utils/error/error';
+import { generateToken } from '../utils/functions';
 import User,{IUser} from '../model/user'
 
 export async function signup(name: string, email: string, password: string) {
@@ -13,9 +13,8 @@ export async function signup(name: string, email: string, password: string) {
     newUser = await User.create(newUser);
 
     delete newUser.password;
-    const token = getToken({ ...newUser, user_type: "client" });
+    const token = generateToken({ ...newUser, user_type: "client" });
     return { success: true, message: "Login successful", token, user: newUser };
-
 };
 
 export async function login (email: string, password: string) {
@@ -28,6 +27,6 @@ export async function login (email: string, password: string) {
     if (!isPasswordValid) throw new CustomError("Invalid credentials", 401);
 
     delete user.password;
-    const token = getToken({ ...user, user_type: "client" });
+    const token = generateToken({ ...user, user_type: "client" });
     return { success: true, message: "Login successful", token, user };
 };
