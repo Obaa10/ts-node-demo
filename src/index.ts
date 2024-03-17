@@ -1,38 +1,38 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { connect } from "mongoose"
+import dotenv from "dotenv";
+import cors from "cors";
+import helmet from "helmet";
 
-import auth from "./router/auth"
+import router from "./router/index"
+import globalErrorHandler from "./utils/error/globalErrorHandler"
 
 const app = express();
-const port = 3000;
 
-
+dotenv.config({ path: `./config.${process.env.NODE_ENV}.env` });
 connectDatabase()
 initMiddleware()
 startApp()
 
 function initMiddleware() {
     app.use(express.json({ limit: "10kb" }));
+    app.use(cors());
+    app.use(helmet());
+
 }
 
-
 function startApp() {
-    app.use(auth)
-    app.listen(port, () => {
-        console.log(`Server is running on http://localhost:${port}`);
-    });
-    app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-        const statusCode = error.statusCode || 500;
-        res.status(statusCode).json({
-            message: error.message || 'An unexpected error occurred',
-        });
-    })
+    const PORT = process.env.PORT || 3000;
+
+    app.use(router)
+    app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));
+    app.use(globalErrorHandler)
 }
 
 async function connectDatabase() {
-    connect('mongodb://127.0.0.1:27017/typescript-test')
+    connect("mongodb://127.0.0.1:27017/typescript-demo") //process.env.DATABASE!
         .then((value) => console.log("database connected successfully"))
-        .catch(e => console.log("connection error"));
+        .catch(e => console.log(`database connection error ${e}`));
 }
 
 
